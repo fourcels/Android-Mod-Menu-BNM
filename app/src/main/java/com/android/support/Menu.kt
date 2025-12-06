@@ -23,9 +23,9 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.ScrollView
 import android.widget.SeekBar
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.edit
 import androidx.core.graphics.toColorInt
 import androidx.core.view.setPadding
@@ -330,7 +330,7 @@ class Menu(val context: Activity) {
     private fun toggle(featIdx: Int, featName: String, defaultValue: Boolean = false): View {
         val isChecked = read(featName, defaultValue)
         valueChange(featIdx, featName, isChecked)
-        val switch = SwitchCompat(context)
+        val switch = Switch(context)
         switch.text = featName
         switch.isChecked = isChecked
         switch.layoutParams = LinearLayout.LayoutParams(

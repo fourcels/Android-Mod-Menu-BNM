@@ -60,13 +60,14 @@ Java_com_android_support_Menu_valueChange(
     }
 }
 
-bool (*old_CurrenciesSpend)(void *instance, int type, int value, void *param);
 
 bool (*old_CurrenciesTryAdd)(void *instance, int type, int amount, void *param);
 
 bool CurrenciesTryAdd(void *instance, int type, int amount, void *param) {
     return old_CurrenciesTryAdd(instance, type, amount * reward, param);
 }
+
+bool (*old_CurrenciesSpend)(void *instance, int type, int value, void *param);
 
 bool CurrenciesSpend(void *instance, int type, int value, void *param) {
     if (instance != nullptr) {
@@ -79,6 +80,7 @@ bool CurrenciesSpend(void *instance, int type, int value, void *param) {
 }
 
 
+// Example Game: [Horny Villa](https://www.nutaku.net/games/horny-villa/)
 void OnLoaded() {
     LOGI("OnLoaded");
     using namespace BNM;

@@ -302,6 +302,7 @@ class Menu(val context: Activity) {
     external fun getFeatureList(): Array<String>?
     external fun valueChange(featIdx: Int, featName: String, value: Any)
 
+    @Suppress("UNCHECKED_CAST")
     fun <T> read(key: String, defaultValue: T): T {
         return when (defaultValue) {
             is String -> sharedPreferences.getString(key, defaultValue) ?: defaultValue

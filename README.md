@@ -6,22 +6,45 @@ Floating mod menu for il2cpp base on [ByNameModding](https://github.com/ByNameMo
 
 # Getting Start
 
-## Decoding `game.apk` with [apktool](https://apktool.org/)
+## Edit and Build Android-Mod-Menu-BNM with [Android Studio](https://developer.android.com/studio)
 
-```zsh
-apktool d -f game.apk
-```
+1. edit `app/com/android/support/Menu.kt`
 
-## Build Android-Mod-Menu-BNM with [Android Studio](https://developer.android.com/studio)
+   ```kotlin
+    const val TITLE = "Modded by (YourName)"
+    const val SUB_TITLE = "whatever here"
+    const val START_ICON = "data:image/png;base64,..."
+   ```
 
-```
-Build > Generate App Bundles or APKs > Generate APKs
-```
+2. edit `app/cpp/native-lib.cpp`
+
+   ```cpp
+   // feature list
+   getFeatureList() {}
+
+   // value change
+   valueChange() {}
+
+   // hook methods
+   OnLoaded() {}
+   ```
+
+3. build `app-debug.apk`
+
+   ```
+   Build > Generate App Bundles or APKs > Generate APKs
+   ```
 
 ## Decoding `app-debug.apk` with [apktool](https://apktool.org/)
 
 ```zsh
 apktool d -f app-debug.apk
+```
+
+## Decoding `game.apk` with [apktool](https://apktool.org/)
+
+```zsh
+apktool d -f game.apk
 ```
 
 ## Copy `app-debug` files to `game` fold
@@ -31,31 +54,30 @@ cp app-debug/lib/${ARCH_ABI}/libModBNM.so game/lib/${ARCH_ABI}/libModBNM.so
 cp -r app-debug/smali_classes{2,3,4,5} game/
 ```
 
-## Update game's main activity
+## Update `game`'s main activity
 
-1. open `game/AndroidManifest.xml` and find main activity
+1. find `main` activity in `game/AndroidManifest.xml`
 
-    ```xml
-    <activity
-        android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|density|layoutDirection|fontScale"
-        android:exported="true" android:hardwareAccelerated="false" android:label="@string/app_name"
-        android:launchMode="singleTask" android:maxAspectRatio="2.0"
-        android:name="com.nutaku.unity.UnityPlayerActivity" android:resizeableActivity="false"
-        android:screenOrientation="userLandscape">
-        <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
-    </activity>
-    ```
+   ```xml
+   <activity
+       android:configChanges="mcc|mnc|locale|touchscreen|keyboard|keyboardHidden|navigation|orientation|screenLayout|uiMode|screenSize|smallestScreenSize|density|layoutDirection|fontScale"
+       android:exported="true" android:hardwareAccelerated="false" android:label="@string/app_name"
+       android:launchMode="singleTask" android:maxAspectRatio="2.0"
+       android:name="com.nutaku.unity.UnityPlayerActivity" android:resizeableActivity="false"
+       android:screenOrientation="userLandscape">
+       <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+   </activity>
+   ```
 
-2. open `game/smali/com/nutaku/unity/UnityPlayerActivity.smali` and edit
-   `onCreate` method
+2. edit `onCreate` method in `game/smali/com/nutaku/unity/UnityPlayerActivity.smali`
 
-    ```smali
-    .method protected onCreate(Landroid/os/Bundle;)V
-        # invoke Main.start(context)
-        invoke-static {p0}, Lcom/android/support/Main;->start(Landroid/content/Context;)V
-        ...
+   ```smali
+   .method protected onCreate(Landroid/os/Bundle;)V
+       # invoke Main.start(context)
+       invoke-static {p0}, Lcom/android/support/Main;->start(Landroid/content/Context;)V
+       ...
    .end method
-    ```
+   ```
 
 ## Rebuilding `game` with [apktool](https://apktool.org/)
 
@@ -63,7 +85,7 @@ cp -r app-debug/smali_classes{2,3,4,5} game/
 apktool b -f game
 ```
 
-## Sign `game/dist/game.apk` with [AndroidToolKit](https://github.com/LazyIonEs/AndroidToolKit/)
+## Sign `game/dist/game.apk` with [AndroidToolKit](https://github.com/LazyIonEs/AndroidToolKit/) or [apksigner](https://developer.android.com/tools/apksigner)
 
 ![sign.png](images/sign.png)
 
@@ -73,3 +95,4 @@ apktool b -f game
   other native android games.
 - [ByNameModding](https://github.com/ByNameModding/BNM-Android) Modding il2cpp games by classes,
   methods, fields names on Android.
+- [Dobby](https://github.com/jmpews/Dobby) a lightweight, multi-platform, multi-architecture hook framework.

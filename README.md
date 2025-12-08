@@ -11,12 +11,12 @@ Floating mod menu for il2cpp base on [ByNameModding](https://github.com/ByNameMo
 1. edit `app/com/android/support/Menu.kt`
 
    ```kotlin
-    const val TITLE = "Modded by (YourName)"
-    const val SUB_TITLE = "whatever here"
-    const val START_ICON = "data:image/png;base64,..."
+   const val TITLE = "Modded by (YourName)"
+   const val SUB_TITLE = "whatever here"
+   const val START_ICON = "data:image/png;base64,..."
    ```
 
-2. edit `app/cpp/native-lib.cpp`
+1. edit `app/cpp/native-lib.cpp`
 
    ```cpp
    // feature list
@@ -29,7 +29,7 @@ Floating mod menu for il2cpp base on [ByNameModding](https://github.com/ByNameMo
    OnLoaded() {}
    ```
 
-3. build `app-debug.apk`
+1. build `app-debug.apk`
 
    ```
    Build > Generate App Bundles or APKs > Generate APKs
@@ -69,7 +69,7 @@ cp -r app-debug/smali_classes{2,3,4,5} game/
    </activity>
    ```
 
-2. edit `onCreate` method in `game/smali/com/nutaku/unity/UnityPlayerActivity.smali`
+1. edit `onCreate` method in `game/smali/com/nutaku/unity/UnityPlayerActivity.smali`
 
    ```smali
    .method protected onCreate(Landroid/os/Bundle;)V

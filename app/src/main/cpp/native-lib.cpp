@@ -32,14 +32,14 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
 extern "C" JNIEXPORT jobjectArray JNICALL
 Java_com_android_support_Menu_getFeatureList(JNIEnv *env, jobject thiz) {
     string featList[] = {
-            "Toggle:Currencies",
-            "Seekbar:Reward:1_10",
+            "Seekbar:Attack:1_20",
+            "Seekbar:Defence:1_20",
     };
     return toJobjectArray(env, featList, size(featList));
 }
 
-bool currencies = false;
-int reward = 1;
+int attack = 1;
+int defence = 1;
 extern "C" JNIEXPORT void JNICALL
 Java_com_android_support_Menu_valueChange(
         JNIEnv *env,
@@ -51,11 +51,11 @@ Java_com_android_support_Menu_valueChange(
     // featIdx: index in feature list
     switch (featIdx) {
         case 0: {
-            currencies = toJboolean(env, value);
+            attack = toJint(env, value);
             break;
         }
         case 1: {
-            reward = toJint(env, value);
+            defence = toJint(env, value);
             break;
         }
         default:
@@ -63,33 +63,50 @@ Java_com_android_support_Menu_valueChange(
     }
 }
 
+Field<int> Camp{};
 
-bool (*old_CurrenciesTryAdd)(void *instance, int type, int amount, void *param);
+float (*old_GetSkillConditionAttack)(void *instance, void *inSource,
+                                     void *inSkillProcessContext,
+                                     void *inSourceSkillFunctionInfos);
 
-bool CurrenciesTryAdd(void *instance, int type, int amount, void *param) {
-    return old_CurrenciesTryAdd(instance, type, amount * reward, param);
-}
-
-bool (*old_CurrenciesSpend)(void *instance, int type, int value, void *param);
-
-bool CurrenciesSpend(void *instance, int type, int value, void *param) {
-    if (instance != nullptr) {
-        if (currencies) {
-            CurrenciesTryAdd(instance, type, value, param);
-            return true;
-        }
+float new_GetSkillConditionAttack(void *instance, void *inSource,
+                                  void *inSkillProcessContext,
+                                  void *inSourceSkillFunctionInfos) {
+    auto ret = old_GetSkillConditionAttack(instance, inSource, inSkillProcessContext,
+                                           inSourceSkillFunctionInfos);
+    auto camp = Camp[inSource]();
+    if (camp == 1) {
+        ret = ret * attack;
     }
-    return old_CurrenciesSpend(instance, type, value, param);
+    return ret;
+}
+
+float (*old_GetDefenceRate)(void *instance, void *inSource,
+                            void *inSkillProcessContext,
+                            void *inSourceSkillFunctionInfos);
+
+float new_GetDefenceRate(void *instance, void *inSource,
+                         void *inSkillProcessContext,
+                         void *inSourceSkillFunctionInfos) {
+    auto ret = old_GetDefenceRate(instance, inSource, inSkillProcessContext,
+                                  inSourceSkillFunctionInfos);
+    auto camp = Camp[inSource]();
+    if (camp == 2) {
+        ret = ret * defence;
+    }
+    return ret;
 }
 
 
-// Example Game: [Horny Villa](https://www.nutaku.net/games/horny-villa/)
+// Example Game: [Ark Re:Code](https://www.nutaku.net/games/ark-recode/)
 void OnLoaded() {
     LOGI("OnLoaded");
     auto AssemblyCSharp = Image("Assembly-CSharp");
-    auto Currencies = Class("StripClub.Model", "Currencies", AssemblyCSharp);
-    auto Spend = Currencies.GetMethod("Spend", 3);
-    auto TryAdd = Currencies.GetMethod("TryAdd", 3);
-    BasicHook(Spend, CurrenciesSpend, old_CurrenciesSpend);
-    BasicHook(TryAdd, CurrenciesTryAdd, old_CurrenciesTryAdd);
+    auto BattleRoleData = Class("Game", "BattleRoleData", AssemblyCSharp);
+    Camp = BattleRoleData.GetField("Camp");
+    auto BattleCalculator = Class("Game", "BattleCalculator", AssemblyCSharp);
+    auto GetSkillConditionAttack = BattleCalculator.GetMethod("GetSkillConditionAttack");
+    auto GetDefenceRate = BattleCalculator.GetMethod("GetDefenceRate");
+    BasicHook(GetSkillConditionAttack, new_GetSkillConditionAttack, old_GetSkillConditionAttack);
+    BasicHook(GetDefenceRate, new_GetDefenceRate, old_GetDefenceRate);
 }

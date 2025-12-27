@@ -32,7 +32,7 @@ import androidx.core.graphics.toColorInt
 import androidx.core.view.setPadding
 
 // setup
-const val TITLE = "Modded by (YourName)"
+const val TITLE = "Modded by Typh00n"
 const val SUB_TITLE = "whatever here"
 
 @Suppress("SpellCheckingInspection")

@@ -32,14 +32,12 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
 extern "C" JNIEXPORT jobjectArray JNICALL
 Java_com_android_support_Menu_getFeatureList(JNIEnv *env, jobject thiz) {
     string featList[] = {
-            "Seekbar:Attack:1_20",
-            "Seekbar:Defence:1_20",
+            "Toggle:Infinite Moves",
     };
     return toJobjectArray(env, featList, size(featList));
 }
 
-int attack = 1;
-int defence = 1;
+bool moves = false;
 extern "C" JNIEXPORT void JNICALL
 Java_com_android_support_Menu_valueChange(
         JNIEnv *env,
@@ -51,11 +49,7 @@ Java_com_android_support_Menu_valueChange(
     // featIdx: index in feature list
     switch (featIdx) {
         case 0: {
-            attack = toJint(env, value);
-            break;
-        }
-        case 1: {
-            defence = toJint(env, value);
+            moves = toJboolean(env, value);
             break;
         }
         default:
@@ -63,50 +57,24 @@ Java_com_android_support_Menu_valueChange(
     }
 }
 
-Field<int> Camp{};
+Method<void> AddMoves{};
 
-float (*old_GetSkillConditionAttack)(void *instance, void *inSource,
-                                     void *inSkillProcessContext,
-                                     void *inSourceSkillFunctionInfos);
+float (*old_PlayerMove)();
 
-float new_GetSkillConditionAttack(void *instance, void *inSource,
-                                  void *inSkillProcessContext,
-                                  void *inSourceSkillFunctionInfos) {
-    auto ret = old_GetSkillConditionAttack(instance, inSource, inSkillProcessContext,
-                                           inSourceSkillFunctionInfos);
-    auto camp = Camp[inSource]();
-    if (camp == 1) {
-        ret = ret * attack;
+float new_PlayerMove() {
+    if (moves) {
+        AddMoves(1);
     }
-    return ret;
-}
-
-float (*old_GetDefenceRate)(void *instance, void *inSource,
-                            void *inSkillProcessContext,
-                            void *inSourceSkillFunctionInfos);
-
-float new_GetDefenceRate(void *instance, void *inSource,
-                         void *inSkillProcessContext,
-                         void *inSourceSkillFunctionInfos) {
-    auto ret = old_GetDefenceRate(instance, inSource, inSkillProcessContext,
-                                  inSourceSkillFunctionInfos);
-    auto camp = Camp[inSource]();
-    if (camp == 2) {
-        ret = ret * defence;
-    }
-    return ret;
+    return old_PlayerMove();
 }
 
 
-// Example Game: [Ark Re:Code](https://www.nutaku.net/games/ark-recode/)
+// Example Game: [Mafia Queens](https://www.nutaku.net/games/mafia-queens/)
 void OnLoaded() {
     LOGI("OnLoaded");
     auto AssemblyCSharp = Image("Assembly-CSharp");
-    auto BattleRoleData = Class("Game", "BattleRoleData", AssemblyCSharp);
-    Camp = BattleRoleData.GetField("Camp");
-    auto BattleCalculator = Class("Game", "BattleCalculator", AssemblyCSharp);
-    auto GetSkillConditionAttack = BattleCalculator.GetMethod("GetSkillConditionAttack");
-    auto GetDefenceRate = BattleCalculator.GetMethod("GetDefenceRate");
-    BasicHook(GetSkillConditionAttack, new_GetSkillConditionAttack, old_GetSkillConditionAttack);
-    BasicHook(GetDefenceRate, new_GetDefenceRate, old_GetDefenceRate);
+    auto GameBoardGame = Class("BlmbM23SDK", "GameBoardGame", AssemblyCSharp);
+    auto PlayerMove = GameBoardGame.GetMethod("PlayerMove");
+    AddMoves = GameBoardGame.GetMethod("AddMoves");
+    BasicHook(PlayerMove, new_PlayerMove, old_PlayerMove);
 }

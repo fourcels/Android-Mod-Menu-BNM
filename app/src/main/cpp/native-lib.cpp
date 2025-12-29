@@ -10,8 +10,6 @@
 #include <BNM/Loading.hpp>
 #include "utils.h"
 
-using namespace std;
-using namespace BNM;
 
 void OnLoaded();
 
@@ -19,8 +17,8 @@ extern "C" JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM *vm, void *reserved) {
     JNIEnv *env;
     vm->GetEnv((void **) &env, JNI_VERSION_1_6);
-    Loading::AddOnLoadedEvent(OnLoaded);
-    Loading::TryLoadByJNI(env);
+    BNM::Loading::AddOnLoadedEvent(OnLoaded);
+    BNM::Loading::TryLoadByJNI(env);
     return JNI_VERSION_1_6;
 }
 
@@ -31,11 +29,11 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
 // Category:CategoryName
 extern "C" JNIEXPORT jobjectArray JNICALL
 Java_com_android_support_Menu_getFeatureList(JNIEnv *env, jobject thiz) {
-    string featList[] = {
+    std::string featList[] = {
             "Seekbar:Attack:1_20",
             "Seekbar:Defence:1_20",
     };
-    return toJobjectArray(env, featList, size(featList));
+    return toJobjectArray(env, featList, std::size(featList));
 }
 
 int attack = 1;
@@ -63,7 +61,7 @@ Java_com_android_support_Menu_valueChange(
     }
 }
 
-Field<int> Camp{};
+BNM::Field<int> Camp{};
 
 float (*old_GetSkillConditionAttack)(void *instance, void *inSource,
                                      void *inSkillProcessContext,
@@ -101,12 +99,13 @@ float new_GetDefenceRate(void *instance, void *inSource,
 // Example Game: [Ark Re:Code](https://www.nutaku.net/games/ark-recode/)
 void OnLoaded() {
     LOGI("OnLoaded");
-    auto AssemblyCSharp = Image("Assembly-CSharp");
-    auto BattleRoleData = Class("Game", "BattleRoleData", AssemblyCSharp);
+    auto AssemblyCSharp = BNM::Image("Assembly-CSharp");
+    auto BattleRoleData = BNM::Class("Game", "BattleRoleData", AssemblyCSharp);
     Camp = BattleRoleData.GetField("Camp");
-    auto BattleCalculator = Class("Game", "BattleCalculator", AssemblyCSharp);
+    auto BattleCalculator = BNM::Class("Game", "BattleCalculator", AssemblyCSharp);
     auto GetSkillConditionAttack = BattleCalculator.GetMethod("GetSkillConditionAttack");
     auto GetDefenceRate = BattleCalculator.GetMethod("GetDefenceRate");
-    BasicHook(GetSkillConditionAttack, new_GetSkillConditionAttack, old_GetSkillConditionAttack);
-    BasicHook(GetDefenceRate, new_GetDefenceRate, old_GetDefenceRate);
+    BNM::BasicHook(GetSkillConditionAttack, new_GetSkillConditionAttack,
+                   old_GetSkillConditionAttack);
+    BNM::BasicHook(GetDefenceRate, new_GetDefenceRate, old_GetDefenceRate);
 }

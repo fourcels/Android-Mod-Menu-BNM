@@ -4,8 +4,6 @@
 
 #include "utils.h"
 
-using namespace std;
-
 // jobject -> jboolean (JNI_TRUE/JNI_FALSE)
 jboolean toJboolean(JNIEnv *env, jobject obj) {
     if (obj == nullptr) return JNI_FALSE;
@@ -50,7 +48,7 @@ jint toJint(JNIEnv *env, jobject obj) {
 }
 
 // string[] -> jobjectArray
-jobjectArray toJobjectArray(JNIEnv *env, string arr[], int size) {
+jobjectArray toJobjectArray(JNIEnv *env, std::string arr[], int size) {
     jclass stringClass = env->FindClass("java/lang/String");
     if (stringClass == nullptr) {
         return nullptr;

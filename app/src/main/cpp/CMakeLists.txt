@@ -25,7 +25,7 @@ project("ModBNM")
 # Add the directory containing your local copy of dobby.h
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${CMAKE_CURRENT_SOURCE_DIR}/utils
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/Dobby
 )
 add_subdirectory(ByNameModding EXCLUDE_FROM_ALL)
@@ -47,6 +47,45 @@ add_library(${CMAKE_PROJECT_NAME} SHARED
 # can link libraries from various origins, such as libraries defined in this
 # build script, prebuilt third-party libraries, or Android system libraries.
 target_link_libraries(${CMAKE_PROJECT_NAME}
+        # List libraries link to the target library
+        ${LIBDOBBY_PATH}
+        BNM
+        android
+        log)
+
+# horny-villa
+set(LIB_NAME horny-villa)
+add_library(${LIB_NAME} SHARED
+        utils/utils.cpp
+        ${LIB_NAME}.cpp)
+
+target_link_libraries(${LIB_NAME}
+        # List libraries link to the target library
+        ${LIBDOBBY_PATH}
+        BNM
+        android
+        log)
+
+# ark-recode
+set(LIB_NAME ark-recode)
+add_library(${LIB_NAME} SHARED
+        utils/utils.cpp
+        ${LIB_NAME}.cpp)
+
+target_link_libraries(${LIB_NAME}
+        # List libraries link to the target library
+        ${LIBDOBBY_PATH}
+        BNM
+        android
+        log)
+
+# mafia-queens
+set(LIB_NAME mafia-queens)
+add_library(${LIB_NAME} SHARED
+        utils/utils.cpp
+        ${LIB_NAME}.cpp)
+
+target_link_libraries(${LIB_NAME}
         # List libraries link to the target library
         ${LIBDOBBY_PATH}
         BNM

@@ -20,9 +20,9 @@ static_assert(false, "ByNameModding requires C++20 and above!");
 //#define UNITY_VER 212 // 2021.2.x
 //#define UNITY_VER 213 // 2021.3.x
 //#define UNITY_VER 221 // 2022.1.x
-#define UNITY_VER 222 // 2022.2.x - 2022.3.x
+//#define UNITY_VER 222 // 2022.2.x - 2022.3.x
 //#define UNITY_VER 231 // 2023.1.x
-//#define UNITY_VER 232 // 2023.2.x+
+#define UNITY_VER 232 // 2023.2.x+
 
 #define UNITY_PATCH_VER 32 // Для особых случаев (For special cases)
 
@@ -125,19 +125,19 @@ static_assert(false, "ByNameModding requires C++20 and above!");
 
 template<typename PTR_T, typename NEW_T, typename T_OLD>
 inline void *BasicHook(PTR_T ptr, NEW_T newMethod, T_OLD &oldBytes) {
-    if ((void *) ptr != nullptr) DobbyHook((void *)ptr, (void *) newMethod, (void **) &oldBytes);
+    if ((void *) ptr != nullptr) DobbyHook((void *) ptr, (void *) newMethod, (void **) &oldBytes);
     return (void *) ptr;
 }
 
 template<typename PTR_T, typename NEW_T, typename T_OLD>
 inline void *BasicHook(PTR_T ptr, NEW_T newMethod, T_OLD &&oldBytes) {
-    if ((void *) ptr != nullptr) DobbyHook((void *)ptr, (void *) newMethod, (void **) &oldBytes);
+    if ((void *) ptr != nullptr) DobbyHook((void *) ptr, (void *) newMethod, (void **) &oldBytes);
     return (void *) ptr;
 }
 
 template<typename PTR_T>
 inline void Unhook(PTR_T ptr) {
-    if ((void *) ptr != nullptr) DobbyDestroy((void *)ptr);
+    if ((void *) ptr != nullptr) DobbyDestroy((void *) ptr);
 }
 
 // Dummy

@@ -90,15 +90,30 @@ T GetField(BNM::IL2CPP::Il2CppObject *instant, const std::string_view &name) {
 }
 
 template<typename T>
+T GetField(void *instant, const std::string_view &name) {
+    return GetField<T>(static_cast<BNM::IL2CPP::Il2CppObject *>(instant), name);
+}
+
+template<typename T>
 T GetProperty(BNM::IL2CPP::Il2CppObject *instant, const std::string_view &name) {
     BNM::Property<T> property = BNM::Class(instant->klass).GetProperty(name);
     return property[instant]();
 }
 
 template<typename T>
+T GetProperty(void *instant, const std::string_view &name) {
+    return GetProperty<T>(static_cast<BNM::IL2CPP::Il2CppObject *>(instant), name);
+}
+
+template<typename T>
 void SetProperty(BNM::IL2CPP::Il2CppObject *instant, const std::string_view &name, T value) {
     BNM::Property<T> property = BNM::Class(instant->klass).GetProperty(name);
     property[instant]() = value;
+}
+
+template<typename T>
+void SetProperty(void *instant, const std::string_view &name, T value) {
+    SetProperty<T>(static_cast<BNM::IL2CPP::Il2CppObject *>(instant), name, value);
 }
 
 #endif //ANDROID_MOD_MENU_BNM_UTILS_H

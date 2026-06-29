@@ -33,14 +33,12 @@ JNI_OnLoad(JavaVM *vm, void *reserved) {
 extern "C" JNIEXPORT jobjectArray JNICALL
 Java_com_android_support_Menu_getFeatureList(JNIEnv *env, jobject thiz) {
     std::string feats[] = {
-            "Toggle:Characters",
             "Seekbar:Reward:1_20",
     };
     return toJobjectArray(env, feats);
 }
 
 struct Feature {
-    bool characters{false};
     int reward{1};
 };
 
@@ -57,10 +55,6 @@ Java_com_android_support_Menu_valueChange(
     // featIdx: index in feature list
     switch (featIdx) {
         case 0: {
-            feature.characters = value;
-            break;
-        }
-        case 1: {
             feature.reward = value;
             break;
         }
@@ -86,47 +80,6 @@ void new_AddCharacterTemptation(void *instance, void *character, int added) {
     return old_AddCharacterTemptation(instance, character, added * feature.reward);
 }
 
-void (*old_Load)(void *instance);
-
-void new_Load(BNM::IL2CPP::Il2CppObject *instance) {
-    old_Load(instance);
-    if (feature.characters) {
-        auto userCharacterFactory = GetField<void *>(instance, "userCharacterFactory");
-        auto characterStaticUsecase = GetField<void *>(userCharacterFactory,
-                                                       "characterStaticUsecase");
-        auto characters = GetProperty<void *>(characterStaticUsecase,
-                                              "Characters");
-        auto count = GetMethod<int>(characters, "get_Count")();
-        for (int i = 0; i < count; i++) {
-            auto character = GetMethod<void *>(characters, "get_Item")(i);
-            auto id = GetProperty<int>(character, "Id");
-            GetMethod<void>(instance, "AddCharacterOrExperience")(id, 100);
-        }
-    }
-}
-
-bool (*old_TryBuyVip)(void *instance);
-
-bool new_TryBuyVip(void *instance) {
-    auto monthlyVipUsecase = GetField<void *>(instance, "monthlyVipUsecase");
-    auto userInventoryUsecase = GetField<void *>(monthlyVipUsecase, "userInventoryUsecase");
-    auto vipAccessKey = GetMethod<void *>(instance, "GetVipAccessKey")();
-    GetMethod<void>(userInventoryUsecase, "AddItem")(vipAccessKey, 1);
-    return true;
-}
-
-void (*old_TryBuy)(void *instance, void *config);
-
-void new_TryBuy(void *instance, void *config) {
-    auto key = GetProperty<void *>(config, "Key");
-    auto usecase = GetField<void *>(instance, "usecase");
-    auto inventoryUsecase = GetField<void *>(usecase, "inventoryUsecase");
-    GetMethod<void>(inventoryUsecase, "AddItem")(key, 1);
-
-    auto OnPurchased = GetField<void *>(instance, "OnPurchased");
-    GetMethod<void>(OnPurchased, "Invoke")(config);
-}
-
 
 // [Wet Wealth](https://www.nutaku.net/games/wet-wealth/)
 void OnLoaded() {
@@ -139,22 +92,8 @@ void OnLoaded() {
 
     auto UserCharactersUsecase = BNM::Class("WetWealth.Characters", "UserCharactersUsecase",
                                             AssemblyCSharp);
-    auto Load = UserCharactersUsecase.GetMethod("Load");
     auto AddCharacterTemptation = UserCharactersUsecase.GetMethod("AddCharacterTemptation");
 
-    auto MonthlyVipPresenter = BNM::Class("WetWealth.SlotMachine",
-                                          "MonthlyVipPresenter",
-                                          AssemblyCSharp);
-    auto TryBuyVip = MonthlyVipPresenter.GetMethod("TryBuyVip");
-
-    auto BuildingRepairPresenter = BNM::Class("WetWealth.BuildingRepair",
-                                              "BuildingRepairPresenter",
-                                              AssemblyCSharp);
-    auto TryBuy = BuildingRepairPresenter.GetMethod("TryBuy");
-
     BNM::BasicHook(AddItem, new_AddItem, old_AddItem);
-    BNM::BasicHook(Load, new_Load, old_Load);
     BNM::BasicHook(AddCharacterTemptation, new_AddCharacterTemptation, old_AddCharacterTemptation);
-    BNM::BasicHook(TryBuyVip, new_TryBuyVip, old_TryBuyVip);
-    BNM::BasicHook(TryBuy, new_TryBuy, old_TryBuy);
 }

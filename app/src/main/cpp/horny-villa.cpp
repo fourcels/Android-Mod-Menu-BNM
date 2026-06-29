@@ -32,7 +32,6 @@ extern "C" JNIEXPORT jobjectArray JNICALL
 Java_com_android_support_Menu_getFeatureList(JNIEnv *env, jobject thiz) {
     std::string feats[] = {
             "Toggle:Currencies",
-            "Toggle:Characters",
             "Seekbar:Reward:1_20",
     };
     return toJobjectArray(env, feats);
@@ -40,7 +39,6 @@ Java_com_android_support_Menu_getFeatureList(JNIEnv *env, jobject thiz) {
 
 struct Feature {
     bool currencies{false};
-    bool characters{false};
     int reward{1};
 };
 
@@ -61,10 +59,6 @@ Java_com_android_support_Menu_valueChange(
             break;
         }
         case 1: {
-            feature.characters = value;
-            break;
-        }
-        case 2: {
             feature.reward = value;
             break;
         }
@@ -84,19 +78,9 @@ bool (*old_Spend)(void *instance, int type, int value, void *param);
 
 bool new_Spend(void *instance, int type, int value, void *param) {
     if (feature.currencies) {
-        new_TryAdd(instance, type, value, param);
         return true;
     }
     return old_Spend(instance, type, value, param);
-}
-
-void (*old_Init)(void *instance, int level, int progress);
-
-void new_Init(BNM::IL2CPP::Il2CppObject *instance, int level, int progress) {
-    old_Init(instance, level, progress);
-    if (feature.characters) {
-        GetMethod<void>(instance, "AddSoul")(100);
-    }
 }
 
 
@@ -112,5 +96,4 @@ void OnLoaded() {
 
     BNM::BasicHook(TryAdd, new_TryAdd, old_TryAdd);
     BNM::BasicHook(Spend, new_Spend, old_Spend);
-    BNM::BasicHook(Init, new_Init, old_Init);
 }
